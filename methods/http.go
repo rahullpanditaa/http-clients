@@ -3,6 +3,7 @@ package methods
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 )
 
@@ -101,4 +102,27 @@ func getUserById(baseUrl, id, apiKey string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func deleteUser(baseUrl, id, apiKey string) error {
+	fullUrl := baseUrl + "/" + id
+
+	req, err := http.NewRequest("DELETE", fullUrl, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("X-API-KEY", apiKey)
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode > 299 {
+		return errors.New("unable to delete resource")
+	} else {
+		return nil
+	}
 }
