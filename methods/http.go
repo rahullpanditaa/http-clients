@@ -77,3 +77,28 @@ func updateUser(baseUrl, id, apiKey string, data User) (User, error) {
 
 	return user, nil
 }
+
+func getUserById(baseUrl, id, apiKey string) (User, error) {
+	fullUrl := baseUrl + "/" + id
+
+	req, err := http.NewRequest("GET", fullUrl, nil)
+	if err != nil {
+		return User{}, err
+	}
+	req.Header.Set("X-API-KEY", apiKey)
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	defer res.Body.Close()
+
+	var user User
+	decoder := json.NewDecoder(res.Body)
+	if err := decoder.Decode(&user); err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
